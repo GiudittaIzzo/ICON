@@ -273,23 +273,18 @@ def train_models(x_train, y_train, x_test, y_test):
 
 # Funzione che mostra la curva di apprendimento per ogni modello
 def plot_learning_curves(model, x, y, model_name):
+    # Esegue la procedura di learning_curve per ottenere:
+    # - train_sizes: i diversi numeri di campioni usati per addestrare il modello
+    # - train_scores: punteggi (F1 macro) sul training set
+    # - test_scores: punteggi (F1 macro) sul validation/test set, in cross-validation
     train_sizes, train_scores, test_scores = learning_curve(model, x, y, cv=10, scoring='f1_macro')
 
-    # Calcola gli errori su addestramento e test
+    # Convertiamo i punteggi in errori (errore = 1 - punteggio)
+    # per tracciare più chiaramente quanto il modello "sbaglia"
     train_errors = 1 - train_scores
     test_errors = 1 - test_scores
 
-    # Calcola la deviazione standard e la varianza degli errori su addestramento e test
-    train_errors_std = np.std(train_errors, axis=1)
-    test_errors_std = np.std(test_errors, axis=1)
-    train_errors_var = np.var(train_errors, axis=1)
-    test_errors_var = np.var(test_errors, axis=1)
-
-    # Stampa i valori numerici della deviazione standard e della varianza
-    print(
-        f"\033[95m{model_name} - Train Error Std: {train_errors_std[-1]}, Test Error Std: {test_errors_std[-1]}, Train Error Var: {train_errors_var[-1]}, Test Error Var: {test_errors_var[-1]}\033[0m")
-
-    # Calcola gli errori medi su addestramento e test
+    # Calcoliamo la media degli errori sul training e sul test nei vari fold
     mean_train_errors = 1 - np.mean(train_scores, axis=1)
     mean_test_errors = 1 - np.mean(test_scores, axis=1)
 
